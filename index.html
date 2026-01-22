@@ -3,41 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mixed Mock Test</title>
+    <title>Rasch Mock Test</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; padding: 15px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; }
-        .q-card { border-bottom: 1px solid #eee; padding: 10px 0; }
-        .q-title { font-weight: bold; display: block; margin-bottom: 5px; color: #2c3e50; }
-        .options { display: flex; gap: 10px; }
-        .writing-zone { margin-top: 5px; }
-        input[type="text"] { width: 90%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; }
-        .submit-btn { width: 100%; padding: 15px; background: #2481cc; color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 15px; margin: 0; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .q-card { border-bottom: 1px solid #eee; padding: 15px 0; }
+        .q-title { font-weight: bold; display: block; margin-bottom: 8px; color: #2c3e50; }
+        .options { display: flex; gap: 15px; }
+        input[type="text"] { width: 95%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .submit-btn { width: 100%; padding: 15px; background: #2481cc; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>Rasch Mock Test</h2>
-    <form id="quizForm">
-        <div id="questionsContainer"></div>
-        <button type="button" class="submit-btn" onclick="sendData()">Natijani ko'rish</button>
-    </form>
+    <h2 style="text-align: center;">Mock Test</h2>
+    <div id="questionsContainer"></div>
+    <button type="button" class="submit-btn" onclick="sendData()">Natijani ko'rish</button>
 </div>
 
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
+    tg.ready();
+
     const container = document.getElementById('questionsContainer');
 
     for (let i = 1; i <= 55; i++) {
         const div = document.createElement('div');
         div.className = 'q-card';
-        
         if (i <= 36) {
-            // 1-36 Savollar: Radio tugmalar
-            div.innerHTML = `
-                <span class="q-title">${i}-savol:</span>
+            div.innerHTML = `<span class="q-title">${i}-savol:</span>
                 <div class="options">
                     <label><input type="radio" name="q${i}" value="A"> A</label>
                     <label><input type="radio" name="q${i}" value="B"> B</label>
@@ -45,13 +41,9 @@
                     <label><input type="radio" name="q${i}" value="D"> D</label>
                 </div>`;
         } else {
-            // 37-55 Savollar: Yozma bandlar
-            div.innerHTML = `
-                <span class="q-title">${i}-savol (Yozma):</span>
-                <div class="writing-zone">
-                    a) <input type="text" id="q${i}a" placeholder="Javobni yozing..."><br>
-                    b) <input type="text" id="q${i}b" placeholder="Javobni yozing...">
-                </div>`;
+            div.innerHTML = `<span class="q-title">${i}-savol (Yozma):</span>
+                a) <input type="text" id="q${i}a" placeholder="Javob a..."><br>
+                b) <input type="text" id="q${i}b" placeholder="Javob b...">`;
         }
         container.appendChild(div);
     }
@@ -60,12 +52,12 @@
         let answers = {};
         for (let i = 1; i <= 55; i++) {
             if (i <= 36) {
-                answers[i] = document.querySelector(`input[name="q${i}"]:checked`)?.value || "";
+                let r = document.querySelector(`input[name="q${i}"]:checked`);
+                answers[i] = r ? r.value : "";
             } else {
-                // Yozma javoblarni "javobA|javobB" ko'rinishida birlashtiramiz
                 let a = document.getElementById(`q${i}a`).value.trim();
                 let b = document.getElementById(`q${i}b`).value.trim();
-                answers[i] = `${a}|${b}`;
+                answers[i] = a + "|" + b;
             }
         }
         tg.sendData(JSON.stringify(answers));
